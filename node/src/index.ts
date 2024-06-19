@@ -1,5 +1,9 @@
 import { fetch } from './deps'
+import { mailer } from './deps'
+import { dotenv } from './deps'
 import { Logger } from './logger'
+
+dotenv.config()
 
 interface Event {
     EventId: string
@@ -8,6 +12,9 @@ interface Event {
     ResourceType: string
     Resources: string[]
     NotBefore?: string
+    Description?: string
+    EventSource: string
+    DurationInSeconds: number
 }
 
 interface Document {
@@ -46,20 +53,47 @@ async function acknowledgeEvent(event: Event): Promise<void> {
                 log.warning(`Call to acknowledge event ${event.EventId} returned an unexpected response:`, {status: response.status})
             } 
         }
-    } catch(error) {
+    } catch(error: any) {
         log.error(`Unable to acknowledge event ${event.EventId}:`, {message: error.message})
     }
+}
+
+function sendEmail(event: Event) {
+    const transporter = mailer.createTransport({
+        host: `${process.env.SMTP_HOST}`,
+        port: parseInt(process.env.SMTP_PORT!),
+        secure: false,
+        auth: {
+            user: `${process.env.EMAIL_USER}`,
+            pass: `${process.env.EMAIL_PASS}`
+        },
+    });
+
+    const eventSubject = `${event.Resources.join(', ')} ${event.ResourceType} ${event.EventType} ${event.EventStatus}`
+
+    const mailOptions = {
+        from: `${process.env.EMAIL_USER}`,
+        to: `${process.env.EMAIL_USER}`,
+        subject: eventSubject,
+        text: `${eventSubject}\nNot Before: ${event.NotBefore}\n${event.EventSource}: ${event.Description}`,
+    };
+
+    transporter.sendMail(mailOptions, (error: any, info: any) => {
+        if (error) {
+            return console.log(error);
+        }
+
+        console.log('Email %s sent: %s', info.messageId, info.response);
+    });
 }
 
 function handleEvent(event: Event): boolean {
     try {
         // do anything needed to handle event here
-
-
-
+        sendEmail(event)
         log.info(`Handled event ${event.EventId}.`)
         return true
-    } catch(error) {
+    } catch(error: any) {
         log.error(`Unable to handle event ${event.EventId}:`, {message: error.message})
         return false
     }
@@ -115,8 +149,8 @@ async function service() {
                 log.warning(`Call to Scheduled Events API returned unexpected response:`, {status: response.status})
             } 
         }
-    } catch (error) {
-        log.error(`The service encountered and error:`, {message: error.message})
+    } catch (error: any) {
+        log.error(`The service encountered an error:`, {message: error.message})
     } 
     await sleep(1000)
 }
@@ -128,7 +162,25 @@ async function main() {
     }
 }
 
-const log = new Logger('AzureScheduledEvents.log')
+const log = new Logger()
+
 let eTag: number = 0
 let handledEvents: string[] = []
+
+const event: Event = {
+    EventId: "279D65BA-4C08-4BAD-9209-255F97338C32",
+    EventStatus: "Scheduled",
+    EventType: "Reboot",
+    ResourceType: "VirtualMachine",
+    Resources: [
+        "forsen"
+    ],
+    NotBefore: "Wed, 19 Jun 2024 15:26:51 GMT",
+    Description: "Virtual machine is going to be restarted as requested by authorized user.",
+    EventSource: "User",
+    DurationInSeconds: -1
+}
+
+sendEmail(event)
+
 main()

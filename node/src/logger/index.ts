@@ -1,4 +1,4 @@
-import { fs, luxon } from "../deps"
+import { luxon } from "../deps"
 
 enum logMessageType {
     error = "ERR",
@@ -7,17 +7,11 @@ enum logMessageType {
 }
 
 export class Logger {
-    private stream
-
-    constructor(filePath: string) {
-        this.stream = fs.createWriteStream(filePath, {flags:'a'});
-    }
-
     private write(messageType: logMessageType, message: string, body?: any): void {
         let now = `UTC ${luxon.DateTime.now().toUTC().toFormat('yyyy-MM-dd HH:mm:ss')}`
-        this.stream.write(`[${messageType}] (${now}) ${message}\n`)
+        console.log(`[${messageType}] (${now}) ${message}\n`)
         if (body) {
-            this.stream.write(`${JSON.stringify(body, null, 4)}\n`)
+            console.log(`${JSON.stringify(body, null, 4)}\n`)
             return
         }
     }
