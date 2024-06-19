@@ -13,15 +13,32 @@ Install [nodejs](https://nodejs.org/en/) and then run the below commands from th
 
 ### Install
 
+```bash
 $ npm install
+```
 
 ### Build
 
+```bash
 $ npm run build
+```
 
 ### Run
 
+Create .env file inside `node/` directory and set your variables:
+
+```conf
+EMAIL_PASS="YOUR_PASSWORD"
+EMAIL_USER="YOUR_EMAIL"
+SMTP_HOST="YOUR_SMTP_HOST"
+SMTP_PORT=YOUR_SMTP_PORT
+```
+
+Exporting variables using Linux `export` works as well. Now run application.
+
+```bash
 $ npm run start
+```
 
 Example log output:
 
@@ -64,6 +81,31 @@ Example log output:
     "4CAEA225-A741-474D-A72E-428C86FCD853"
 ]
 ```
+
+## Docker
+
+Instead of installing npm and other dependencies, run application in an isolated container.
+
+Create .env file inside `node/` directory and set your variables:
+
+```conf
+EMAIL_PASS="YOUR_PASSWORD"
+EMAIL_USER="YOUR_EMAIL"
+SMTP_HOST="YOUR_SMTP_HOST"
+SMTP_PORT=YOUR_SMTP_PORT
+```
+
+Build Docker image:
+```bash
+docker build . -t iNaToKeczap/scheduled-events-notifier
+```
+
+Run Docker image:
+```bash
+docker run -d --restart on-failure --name scheduled-events-notifier iNaToKeczap/scheduled-events-notifier
+```
+
+Tip: If you do not like setting variables in `.env` file, just pass them using `-e` option in `docker run` command.
 
 ## Contributing
 

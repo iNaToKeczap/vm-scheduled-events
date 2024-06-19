@@ -9,4 +9,4 @@ COPY . .
 
 RUN npm run build
 
-CMD ["/bin/sh", "-c", "set -e && npm run install"]
+CMD ["/bin/sh", "-c", "set -e && npm run start"]

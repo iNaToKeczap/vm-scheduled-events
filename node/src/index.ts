@@ -167,20 +167,4 @@ const log = new Logger()
 let eTag: number = 0
 let handledEvents: string[] = []
 
-const event: Event = {
-    EventId: "279D65BA-4C08-4BAD-9209-255F97338C32",
-    EventStatus: "Scheduled",
-    EventType: "Reboot",
-    ResourceType: "VirtualMachine",
-    Resources: [
-        "forsen"
-    ],
-    NotBefore: "Wed, 19 Jun 2024 15:26:51 GMT",
-    Description: "Virtual machine is going to be restarted as requested by authorized user.",
-    EventSource: "User",
-    DurationInSeconds: -1
-}
-
-sendEmail(event)
-
 main()
