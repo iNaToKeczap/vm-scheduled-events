@@ -107,6 +107,12 @@ docker run -d --restart on-failure --name scheduled-events-notifier iNaToKeczap/
 
 Tip: If you do not like setting variables in `.env` file, just pass them using `-e` option in `docker run` command.
 
+Check if application is running:
+
+```bash
+docker logs scheduled-events-notifier
+```
+
 ## Contributing
 
 This project welcomes contributions and suggestions. Most contributions require you to agree to a
